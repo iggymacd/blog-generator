@@ -2,10 +2,11 @@ package datasource
 
 import (
 	"fmt"
-	"github.com/zupzup/blog-generator/config"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	"github.com/iggymacd/blog-generator/config"
 )
 
 // GitDataSource is the git data source object
@@ -34,7 +35,7 @@ func (ds *GitDataSource) Fetch(cfg *config.Config) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Print("Fetching complete.\n")
+	fmt.Print("Fetching complete.\n", dirs)
 	return dirs, nil
 }
 

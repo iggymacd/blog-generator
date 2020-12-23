@@ -7,9 +7,9 @@ import (
 
 	yaml "gopkg.in/yaml.v2"
 
-	"github.com/zupzup/blog-generator/config"
-	"github.com/zupzup/blog-generator/datasource"
-	"github.com/zupzup/blog-generator/generator"
+	"github.com/iggymacd/blog-generator/config"
+	"github.com/iggymacd/blog-generator/datasource"
+	"github.com/iggymacd/blog-generator/generator"
 )
 
 // Run runs the application
@@ -24,7 +24,16 @@ func Run() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	//change git repo and other app items
+	cfg.Generator.Branch = cfg.App.Branch
+	cfg.Generator.Repo = cfg.App.Repo
+	cfg.Generator.Tmp = cfg.App.Tmp
+	appDirs, err := ds.Fetch(cfg)
 
+	if err != nil {
+		log.Fatal("Could not retrieve repo.", err)
+	}
+	fmt.Println(appDirs)
 	g := generator.New(&generator.SiteConfig{
 		Sources:     dirs,
 		Destination: cfg.Generator.Dest,
@@ -48,7 +57,7 @@ func readConfig() (*config.Config, error) {
 		return nil, fmt.Errorf("could not parse config: %v", err)
 	}
 	if cfg.Generator.Repo == "" {
-		return nil, fmt.Errorf("Please provide a repository URL, e.g.: https://github.com/zupzup/blog")
+		return nil, fmt.Errorf("Please provide a repository URL, e.g.: https://github.com/iggymacd/blog")
 	}
 	if cfg.Generator.Tmp == "" {
 		cfg.Generator.Tmp = "tmp"
@@ -57,7 +66,7 @@ func readConfig() (*config.Config, error) {
 		cfg.Generator.Dest = "www"
 	}
 	if cfg.Blog.URL == "" {
-		return nil, fmt.Errorf("Please provide a Blog URL, e.g.: https://www.zupzup.org")
+		return nil, fmt.Errorf("Please provide a Blog URL, e.g.: https://www.iggymacd.org")
 	}
 	if cfg.Blog.Language == "" {
 		cfg.Blog.Language = "en-us"
@@ -69,7 +78,7 @@ func readConfig() (*config.Config, error) {
 		cfg.Blog.Dateformat = "02.01.2006"
 	}
 	if cfg.Blog.Title == "" {
-		return nil, fmt.Errorf("Please provide a Blog Title, e.g.: zupzup")
+		return nil, fmt.Errorf("Please provide a Blog Title, e.g.: iggymacd")
 	}
 	if cfg.Blog.Author == "" {
 		return nil, fmt.Errorf("Please provide a Blog author, e.g.: Mario Zupan")

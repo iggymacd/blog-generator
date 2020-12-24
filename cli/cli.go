@@ -19,11 +19,11 @@ func Run() {
 		log.Fatal("There was an error while reading the configuration file: ", err)
 	}
 	ds := datasource.New()
-	dirs, err := ds.Fetch(cfg)
+	// dirs, err := ds.Fetch(cfg)
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 	//change git repo and other app items
 	cfg.Generator.Branch = cfg.App.Branch
 	cfg.Generator.Repo = cfg.App.Repo
@@ -34,9 +34,17 @@ func Run() {
 		log.Fatal("Could not retrieve repo.", err)
 	}
 	fmt.Println(appDirs)
-	g := generator.New(&generator.SiteConfig{
-		Sources:     dirs,
-		Destination: cfg.Generator.Dest,
+	// g := generator.New(&generator.SiteConfig{
+	// 	Sources:     dirs,
+	// 	Destination: cfg.Generator.Dest,
+	// 	Config:      cfg,
+	// })
+
+	// err = g.Generate()
+
+	g := generator.NewApp(&generator.AppConfig{
+		Sources:     appDirs,
+		Destination: cfg.App.Dest,
 		Config:      cfg,
 	})
 

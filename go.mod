@@ -7,6 +7,7 @@ require (
 	github.com/alecthomas/chroma v0.7.0
 	github.com/andybalholm/cascadia v0.0.0-20161224141413-349dd0209470 // indirect
 	github.com/beevik/etree v1.1.0
+	github.com/iancoleman/strcase v0.1.2
 	github.com/russross/blackfriday v0.0.0-20151110051855-0b647d0506a6
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170515013256-541ff5ee47f1 // indirect
 	golang.org/x/net v0.0.0-20170605033737-59a0b19b5533 // indirect

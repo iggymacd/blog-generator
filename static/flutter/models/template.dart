@@ -1,6 +1,6 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
-
-class {{.Name}}Model {
+{{.ClassDeclaration}}
+// class Model {
   // static const ID = "id";
   // static const DESCRIPTION = "description";
   // static const CART = "cart";
@@ -9,7 +9,7 @@ class {{.Name}}Model {
   // static const STATUS = "status";
   // static const CREATED_AT = "createdAt";
   // static const UPDATED_AT = "updatedAt";
-  {{.StaticFields}}
+{{.StaticFields}}
 
   // String _id;
   // String _description;

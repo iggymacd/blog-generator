@@ -10,10 +10,14 @@ type Config struct {
 		UseRSS bool
 	}
 	App struct {
-		Repo   string
-		Tmp    string
-		Branch string
-		Dest   string
+		Repo    string
+		Tmp     string
+		Branch  string
+		Dest    string
+		Appname string
+		UI      struct {
+			Sdk string
+		}
 	}
 	Blog struct {
 		URL            string

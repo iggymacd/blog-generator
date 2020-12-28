@@ -2,6 +2,7 @@ package generator
 
 import (
 	"fmt"
+	"os/exec"
 	"path/filepath"
 	"sync"
 	"text/template"
@@ -54,7 +55,8 @@ func NewApp(config *AppConfig) *AppGenerator {
 
 // Generate starts the app generation
 func (g *AppGenerator) Generate() error {
-	templatePath := filepath.Join("static", "models", "template.dart")
+	fmt.Println("sdk is ", g.Config.Config.App.UI.Sdk)
+	templatePath := filepath.Join("static", g.Config.Config.App.UI.Sdk, "models", "template.dart")
 	fmt.Println("Generating App...")
 	sources := g.Config.Sources
 	destination := g.Config.Destination
@@ -82,6 +84,58 @@ func (g *AppGenerator) Generate() error {
 		return err
 	}
 	fmt.Println("Finished generating Site...")
+	return nil
+}
+
+// CreateApp uses flutter sdk to create new project
+func (g *AppGenerator) CreateApp(cfg *config.Config) error {
+	// from := cfg.Generator.Repo
+	to := cfg.Generator.Tmp
+	appname := cfg.App.Appname
+	// branch := cfg.Generator.Branch
+	// if branch == "" {
+	// 	branch = "master"
+	// }
+
+	// fmt.Printf("Fetching data from %s into %s...\n", from, to)
+	// if err := createFolderIfNotExist(to); err != nil {
+	// 	return nil, err
+	// }
+	// if err := clearFolder(to); err != nil {
+	// 	return nil, err
+	// }
+	if err := flutterCreate(to, appname); err != nil {
+		return err
+	}
+	return nil
+	// dirs, err := getContentFolders(to)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// fmt.Print("Fetching complete.\n", dirs)
+	// return dirs, nil
+}
+
+func flutterCreate(path, projectName string) error {
+	cmdName := "flutter"
+	initArgs := []string{"create", projectName}
+	cmd := exec.Command(cmdName, initArgs...)
+	cmd.Dir = path
+	if err := cmd.Run(); err != nil {
+		return fmt.Errorf("error creating project at %s: %v", path, err)
+	}
+	// remoteArgs := []string{"remote", "add", "origin", repositoryURL}
+	// cmd = exec.Command(cmdName, remoteArgs...)
+	// cmd.Dir = path
+	// if err := cmd.Run(); err != nil {
+	// 	return fmt.Errorf("error setting remote %s: %v", repositoryURL, err)
+	// }
+	// pullArgs := []string{"pull", "origin", branch}
+	// cmd = exec.Command(cmdName, pullArgs...)
+	// cmd.Dir = path
+	// if err := cmd.Run(); err != nil {
+	// 	return fmt.Errorf("error pulling %s at %s: %v", branch, path, err)
+	// }
 	return nil
 }
 

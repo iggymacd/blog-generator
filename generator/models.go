@@ -18,7 +18,7 @@ type ModelData struct {
 	// Short      string
 	// Link       string
 	// TimeToRead string
-	ImportStatements, StaticFields, Fields, Transformer string
+	ClassDeclaration, ImportStatements, StaticFields, Fields, Transformer string
 }
 
 // // Field holds the data for each field
@@ -49,7 +49,7 @@ type ModelWriter struct {
 }
 
 // WriteModel writes a Model.dart file
-func (i *ModelWriter) WriteModel(path, importStatements, staticFields, fields, transformer string, t *template.Template) error {
+func (i *ModelWriter) WriteModel(path, classDeclaration, importStatements, staticFields, fields, transformer string, t *template.Template) error {
 	filePath := filepath.Join(path, fmt.Sprintf("%s%s", i.ModelName, "Model.dart"))
 	f, err := os.Create(filePath)
 	if err != nil {
@@ -67,6 +67,7 @@ func (i *ModelWriter) WriteModel(path, importStatements, staticFields, fields, t
 	// hlw.Flush()
 	w := bufio.NewWriter(f)
 	td := ModelData{
+		ClassDeclaration: classDeclaration,
 		ImportStatements: importStatements,
 		StaticFields:     staticFields,
 		Fields:           fields,
@@ -94,34 +95,46 @@ func (i *ModelWriter) WriteModel(path, importStatements, staticFields, fields, t
 
 // Generate generates a model
 func (g *ModelGenerator) Generate() error {
+	const (
+		// master  = `Names:{{block "list" .}}{{"\n"}}{{range .}}{{println "-" .}}{{end}}{{end}}`
+		classDeclaration = `class {{toCamel .Name}}Model {`
+		fields           = `{{range .}} {{"\n"}}{{"\t"}}String {{"_"}}{{lowerCamel .Name}}{{";"}}{{end}} `
+		staticFields     = `{{range .}} {{"\n"}}{{"\t"}}static const {{toScreamingSnake .Name}}{{" = \""}}{{lowerCamel .Name}}{{"\";"}}{{end}} `
+	)
+	var (
+		funcs = template.FuncMap{
+			"lowerCamel":       strcase.ToLowerCamel,
+			"toCamel":          strcase.ToCamel,
+			"toScreamingSnake": strcase.ToScreamingSnake,
+		}
+		// guardians = []string{"Gamora", "Groot", "Nebula", "Rocket", "Star-Lord"}
+	)
 	entity := g.Config.Entity
 	destination := g.Config.Destination
 	t := g.Config.Template
+	// t.Funcs(funcs)
 	fmt.Printf("\tGenerating Model: %v%s...\n", entity.Name, "Model")
 	staticPath := filepath.Join(destination, entity.Name)
 	if err := os.Mkdir(staticPath, os.ModePerm); err != nil {
 		return fmt.Errorf("error creating directory at %s: %v", staticPath, err)
 	}
-	const (
-		// master  = `Names:{{block "list" .}}{{"\n"}}{{range .}}{{println "-" .}}{{end}}{{end}}`
-		fields       = `{{range .}} {{"\n"}}{{"\t"}}String {{"_"}}{{lowerCamel .Name}}{{";"}}{{end}} `
-		staticFields = `{{range .}} {{"\n"}}{{"\t"}}static const {{toScreamingSnake .Name}}{{" = \""}}{{lowerCamel .Name}}{{"\";"}}{{end}} `
-	)
-	var (
-		funcs = template.FuncMap{
-			"lowerCamel":       strcase.ToLowerCamel,
-			"toScreamingSnake": strcase.ToScreamingSnake,
-		}
-		// guardians = []string{"Gamora", "Groot", "Nebula", "Rocket", "Star-Lord"}
-	)
 
+	classDeclTemplate, err := template.New("classDeclaration").Funcs(funcs).Parse(classDeclaration)
+	if err != nil {
+		return fmt.Errorf("error creating template %s: %v", "classDeclaration", err)
+	}
 	fieldsTemplate, err := template.New("fields").Funcs(funcs).Parse(fields)
 	if err != nil {
 		return fmt.Errorf("error creating template %s: %v", "fields", err)
 	}
 	staticFieldsTemplate, err := template.New("static_fields").Funcs(funcs).Parse(staticFields)
 	if err != nil {
-		return fmt.Errorf("error creating template %s: %v", "fields", err)
+		return fmt.Errorf("error creating template %s: %v", "static_fields", err)
+	}
+	classDeclBlock := bytes.Buffer{}
+	err = classDeclTemplate.Execute(&classDeclBlock, entity)
+	if err != nil {
+		return fmt.Errorf("error executing template %s: %v", "classDeclaration", err)
 	}
 	fieldsBlock := bytes.Buffer{}
 	err = fieldsTemplate.Execute(&fieldsBlock, entity.Attributes)
@@ -131,14 +144,14 @@ func (g *ModelGenerator) Generate() error {
 	staticFieldsBlock := bytes.Buffer{}
 	err = staticFieldsTemplate.Execute(&staticFieldsBlock, entity.Attributes)
 	if err != nil {
-		return fmt.Errorf("error executing template %s: %v", "fields", err)
+		return fmt.Errorf("error executing template %s: %v", "static_fields", err)
 	}
 	// if post.ImagesDir != "" {
 	// 	if err := copyImagesDir(post.ImagesDir, staticPath); err != nil {
 	// 		return err
 	// 	}
 	// }
-	if err := g.Config.Writer.WriteModel(staticPath, "imports", staticFieldsBlock.String(), fieldsBlock.String(), "transformers", t); err != nil {
+	if err := g.Config.Writer.WriteModel(staticPath, classDeclBlock.String(), "imports", staticFieldsBlock.String(), fieldsBlock.String(), "transformers", t); err != nil {
 		return err
 	}
 	// if err := g.Config.Writer.WriteIndexHTML(staticPath, post.Meta.Title, post.Meta.Short, template.HTML(string(post.HTML)), t); err != nil {

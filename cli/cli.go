@@ -48,6 +48,12 @@ func Run() {
 		Config:      cfg,
 	})
 
+	err = g.CreateApp(cfg)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	err = g.Generate()
 
 	if err != nil {

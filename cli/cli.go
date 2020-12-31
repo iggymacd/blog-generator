@@ -48,7 +48,7 @@ func Run() {
 		Config:      cfg,
 	})
 
-	err = g.CreateApp(cfg)
+	err = g.CreateFlutterApp(cfg)
 
 	if err != nil {
 		log.Fatal(err)

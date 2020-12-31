@@ -72,7 +72,7 @@ func (g *AppGenerator) Generate() error {
 	}
 	var entities []*Entity
 	for _, path := range sources {
-		fmt.Print("path is", path)
+		fmt.Println("path is ", path)
 		entity, err := newEntity(path)
 		if err != nil {
 			return err
@@ -87,8 +87,8 @@ func (g *AppGenerator) Generate() error {
 	return nil
 }
 
-// CreateApp uses flutter sdk to create new project
-func (g *AppGenerator) CreateApp(cfg *config.Config) error {
+// CreateFlutterApp uses flutter sdk to create new project
+func (g *AppGenerator) CreateFlutterApp(cfg *config.Config) error {
 	// from := cfg.Generator.Repo
 	to := cfg.Generator.Tmp
 	appname := cfg.App.Appname
@@ -140,7 +140,7 @@ func flutterCreate(path, projectName string) error {
 }
 
 func getModelTemplate(path string) (*template.Template, error) {
-	t, err := template.ParseFiles(path)
+	t, err := template.New("entity").Funcs(funcs).ParseFiles(path)
 	if err != nil {
 		return nil, fmt.Errorf("error reading template %s: %v", path, err)
 	}
@@ -171,9 +171,9 @@ func runAppTasks(entities []*Entity, t *template.Template, destination string, c
 			Entity:      entity,
 			Destination: destination,
 			Template:    t,
-			Writer: &ModelWriter{
-				ModelName: entity.Name,
-			},
+			// Writer: &ModelWriter{
+			// 	ModelName: entity.Name,
+			// },
 		}}
 		generators = append(generators, &pg)
 	}

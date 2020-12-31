@@ -1,4 +1,14 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../../../../core/types/gender.dart';
+import '../../../../core/types/vital_status.dart';
+import '../../../../core/util/mapper.dart';
+import '../../domain/entities/character.dart';
+
+part 'user_model.freezed.dart';
+part 'character_model.g.dart';
+
 class UserModel {
 // class Model {
   // static const ID = "id";
@@ -12,6 +22,7 @@ class UserModel {
  
 	static const CREATED_AT = "createdAt"; 
 	static const CREATED_BY = "createdBy"; 
+	static const GENDER = "gender"; 
 	static const UPDATED_AT = "updatedAt"; 
 	static const UPDATED_BY = "updatedBy"; 
 
@@ -25,6 +36,7 @@ class UserModel {
    
 	String _createdAt; 
 	String _createdBy; 
+	String _gender; 
 	String _updatedAt; 
 	String _updatedBy; 
 

@@ -1,4 +1,5 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
+{{.ImportStatements}}
 {{.ClassDeclaration}}
 // class Model {
   // static const ID = "id";

@@ -28,6 +28,7 @@ type EntityMeta struct {
 	// Date       string
 	Permissions []string
 	Attributes  []*Attribute
+	Path        string
 	// ParsedDate time.Time
 }
 
@@ -41,10 +42,20 @@ type Attribute struct {
 	// Images    []string
 }
 
+//Association is a data container for an entity relationship
+type Association struct {
+	Type        string
+	Cardinality string
+	Entity      *Entity
+}
+
 // AttributeMeta is a data container for Attribute Metadata
 type AttributeMeta struct {
 	AttributeType string
 	DisplayName   string
+	Association   *Association
+	Path          string
+	Required      bool
 	// Date       string
 	// Permissions []string
 	// ParsedDate time.Time
